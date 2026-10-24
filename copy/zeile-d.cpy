@@ -10,6 +10,9 @@
        01  W-FZ                    PIC X.
        01  W-MODUS                 PIC X.
        01  W-CRLF                  PIC X.
+       01  W-ZAHL                  PIC Z(4)9.
+       01  W-ZAHL2                 PIC Z(4)9.
+       01  W-ZAHL3                 PIC Z(4)9.
       * Ausgabe als Bytestrom: Zeilendateien (LINE SEQUENTIAL) lehnen
       * in GnuCOBOL 3.2 Sätze mit CR ab, vCard braucht aber CRLF.
        01  W-AUS-PFAD              PIC X(251).

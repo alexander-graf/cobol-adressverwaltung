@@ -79,8 +79,12 @@
            END-PERFORM
            CLOSE EIN-DATEI
            PERFORM AUSGABE-SCHLIESSEN
-           STRING AU-ANZAHL " übernommen, " AU-UEBERSPRUNGEN
-                  " übersprungen, " AU-ERSETZT " Zeichen ersetzt"
+           MOVE AU-ANZAHL TO W-ZAHL
+           MOVE AU-UEBERSPRUNGEN TO W-ZAHL2
+           MOVE AU-ERSETZT TO W-ZAHL3
+           STRING FUNCTION TRIM(W-ZAHL) " übernommen, "
+                  FUNCTION TRIM(W-ZAHL2) " übersprungen, "
+                  FUNCTION TRIM(W-ZAHL3) " Zeichen ersetzt"
                   DELIMITED BY SIZE INTO AU-MELDUNG
            GOBACK.
 

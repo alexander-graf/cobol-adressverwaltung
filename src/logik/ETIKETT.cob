@@ -38,7 +38,8 @@
                END-IF
            END-PERFORM
            PERFORM AUSGABE-SCHLIESSEN
-           STRING AU-ANZAHL " Anschrift(en) geschrieben"
+           MOVE AU-ANZAHL TO W-ZAHL
+           STRING FUNCTION TRIM(W-ZAHL) " Anschrift(en) geschrieben"
                   DELIMITED BY SIZE INTO AU-MELDUNG
            GOBACK.
 

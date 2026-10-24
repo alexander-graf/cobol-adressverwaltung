@@ -37,6 +37,31 @@ Einrichtung auf alexBox (2026-10-24): `dev-lang/gnucobol` mit USE
 `berkdb json xml` (`/etc/portage/package.{accept_keywords,use}/gnucobol`),
 `x11-apps/luit`, Locale `de_DE@euro ISO-8859-15` in `/etc/locale.gen`.
 
+## Fallstricke in GnuCOBOL 3.2 (schon gelöst, nicht wieder einbauen)
+
+- `BLANK SCREEN` als Klausel auf Stufe 01 löscht nichts. Es steht als
+  eigenes Element `05 BLANK SCREEN.` in `copy/bildkopf.cpy`.
+- `PROMPT " "` ohne `CHARACTER IS` macht das Feld zum Nicht-Eingabefeld;
+  ACCEPT kehrt dann sofort mit CRT STATUS 8000 zurück (Endlosschleife).
+  Richtig: `PROMPT CHARACTER IS " "`.
+- LINE SEQUENTIAL verwirft Sätze mit CR stillschweigend. Ausgaben laufen
+  deshalb als Bytestrom über `CBL_CREATE_FILE`/`CBL_WRITE_FILE`
+  (`copy/zeile-p.cpy`).
+- LINKAGE SECTION muss vor der SCREEN SECTION stehen.
+- Fortsetzungszeilen (Spalte 7 `-`) für Literale meiden; lange Texte mit
+  `"..." & "..."` verketten.
+- Nach ACCEPT bleibt der Cursor im letzten Feld. Die Masken setzen
+  `W-CURSOR` (ZZSS) auf das fehlerhafte Feld bzw. beim Öffnen auf 0321.
+
+## Tests
+
+- `make test`: COBOL-Testtreiber `test/TESTLAUF.cob` gegen alle
+  Logik-Module, prüft zusätzlich den JSON-Export mit `python3 -m json.tool`.
+  Läuft auch in CI (Ubuntu 24.04, GnuCOBOL 3.1.2, lokal per Docker geprüft).
+- `make bildtest`: `test/bildtest.sh` spielt die Masken per tmux durch,
+  mit eigenem `HOME`, damit keine Dateien in `~` landen.
+- Demodaten: `scripts/demodaten.csv`, geladen per `adrv-bin --import`.
+
 ## Aufbau
 
 - `src/logik/` Unterprogramme ohne Bildschirm, alle über `make test` geprüft

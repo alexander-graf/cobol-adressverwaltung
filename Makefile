@@ -59,6 +59,7 @@ bildtest: all
 
 install: build/adrv-bin
 	install -Dm755 build/adrv-bin $(PREFIX)/lib/adressverwaltung/adrv-bin
+	mkdir -p $(PREFIX)/bin
 	sed 's|@BIN@|$(PREFIX)/lib/adressverwaltung/adrv-bin|' \
 	  scripts/adrv.in > $(PREFIX)/bin/adrv
 	chmod +x $(PREFIX)/bin/adrv

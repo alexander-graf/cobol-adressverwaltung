@@ -86,7 +86,8 @@
                PERFORM ZEILE-AUSGEBEN
            END-IF
            PERFORM AUSGABE-SCHLIESSEN
-           STRING AU-ANZAHL " Kontakt(e) exportiert"
+           MOVE AU-ANZAHL TO W-ZAHL
+           STRING FUNCTION TRIM(W-ZAHL) " Kontakt(e) exportiert"
                   DELIMITED BY SIZE INTO AU-MELDUNG
            GOBACK.
 
@@ -725,7 +726,7 @@
            MOVE 0 TO AD-LFD
            MOVE "START-NR" TO IO-FUNKTION
            CALL "ADIO" USING IO-PARM AD-SATZ
-           PERFORM UNTIL NOT IO-OK OR W-ADR-ANZ >= 99
+           PERFORM UNTIL NOT IO-OK OR W-ADR-ANZ = 99
                MOVE "WEITER" TO IO-FUNKTION
                CALL "ADIO" USING IO-PARM AD-SATZ
                IF IO-OK AND AD-KT-NR = W-NR-FUER-LADEN
@@ -745,7 +746,7 @@
            MOVE 0 TO KO-LFD
            MOVE "START-NR" TO IO-FUNKTION
            CALL "KOIO" USING IO-PARM KO-SATZ
-           PERFORM UNTIL NOT IO-OK OR W-KOM-ANZ >= 99
+           PERFORM UNTIL NOT IO-OK OR W-KOM-ANZ = 99
                MOVE "WEITER" TO IO-FUNKTION
                CALL "KOIO" USING IO-PARM KO-SATZ
                IF IO-OK AND KO-KT-NR = W-NR-FUER-LADEN

@@ -198,7 +198,7 @@
            MOVE 0 TO WA-LFD
            MOVE "START-NR" TO IO-FUNKTION
            CALL "ADIO" USING IO-PARM WA-SATZ
-           PERFORM UNTIL NOT IO-OK OR W-ADR-ANZ >= 99
+           PERFORM UNTIL NOT IO-OK OR W-ADR-ANZ = 99
                MOVE "WEITER" TO IO-FUNKTION
                CALL "ADIO" USING IO-PARM WA-SATZ
                IF IO-OK AND WA-KT-NR = W-NR
@@ -235,7 +235,7 @@
                    MOVE WA-LFD TO W-MAX-LFD
                END-IF
            END-PERFORM
-           IF W-MAX-LFD >= 99
+           IF W-MAX-LFD = 99
                MOVE "N" TO DI-OK
                MOVE "Höchstens 99 Adressen je Kontakt" TO DI-MELDUNG
                EXIT PARAGRAPH
@@ -312,7 +312,7 @@
            MOVE 0 TO WO-LFD
            MOVE "START-NR" TO IO-FUNKTION
            CALL "KOIO" USING IO-PARM WO-SATZ
-           PERFORM UNTIL NOT IO-OK OR W-KOM-ANZ >= 99
+           PERFORM UNTIL NOT IO-OK OR W-KOM-ANZ = 99
                MOVE "WEITER" TO IO-FUNKTION
                CALL "KOIO" USING IO-PARM WO-SATZ
                IF IO-OK AND WO-KT-NR = W-NR
@@ -349,7 +349,7 @@
                    MOVE WO-LFD TO W-MAX-LFD
                END-IF
            END-PERFORM
-           IF W-MAX-LFD >= 99
+           IF W-MAX-LFD = 99
                MOVE "N" TO DI-OK
                MOVE "Höchstens 99 Einträge je Kontakt" TO DI-MELDUNG
                EXIT PARAGRAPH

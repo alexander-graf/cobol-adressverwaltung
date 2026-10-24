@@ -8,7 +8,7 @@ export ADRV_DATEN
 mkdir -p "$ADRV_DATEN" || exit 1
 
 if ! command -v luit >/dev/null 2>&1; then
-    echo "adrv: luit fehlt (Gentoo: x11-apps/luit, Debian: x11-utils)" >&2
+    echo "adrv: luit fehlt (Gentoo: x11-apps/luit, Debian: luit)" >&2
     exit 1
 fi
 if ! locale -a 2>/dev/null | grep -qi '^de_DE.*euro$\|^de_DE.iso885915'; then
