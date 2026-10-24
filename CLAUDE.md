@@ -50,8 +50,26 @@ Einrichtung auf alexBox (2026-10-24): `dev-lang/gnucobol` mit USE
 - LINKAGE SECTION muss vor der SCREEN SECTION stehen.
 - Fortsetzungszeilen (Spalte 7 `-`) für Literale meiden; lange Texte mit
   `"..." & "..."` verketten.
+- Strg- und Alt-Kombinationen kommen nicht als CRT STATUS an, nur
+  F1–F12 (1001–1012), Shift+F1–F12 (1013–1024), Bild↑/↓, Esc.
 - Nach ACCEPT bleibt der Cursor im letzten Feld. Die Masken setzen
   `W-CURSOR` (ZZSS) auf das fehlerhafte Feld bzw. beim Öffnen auf 0321.
+
+## Bedienung: Befehlszeile statt F-Tasten
+
+Auf alexBox belegt Hyprland F1–F12 (Arbeitsflächen). Deshalb hat jede
+Eingabemaske in Zeile 2 `Befehl ===>` (`copy/befehl.cpy`), Pos1 springt
+dorthin. In Listen steht der Befehl im Auswahlfeld (`W-BEF-LISTE = "J"`).
+
+- Jede Maske füllt `W-BEF-TAB` (Befehl + Tastencode) und ruft nach dem
+  ACCEPT `BEFEHL-AUSWERTEN` (`copy/befehl-p.cpy`). Das macht aus Befehl
+  und Shift+F den Code der F-Taste; danach fragt die Maske nur `T-F2`
+  usw. ab. Die Namen T-F… stehen also für die Funktion, nicht die Taste.
+- Unbekannter Befehl = `T-UNBEKANNT` (9999); jede EVALUATE der Masken
+  braucht dafür ein `WHEN T-UNBEKANNT CONTINUE` vor `WHEN OTHER`.
+- `?` als erstes Zeichen eines Codefelds wirkt wie F4: Absatz
+  `FRAGE-FELDER` setzt Cursor auf das Feld und den Code 1004.
+- Meldungen nennen die Befehle (`S speichert`), nicht die F-Tasten.
 
 ## Tests
 

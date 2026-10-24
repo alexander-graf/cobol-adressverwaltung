@@ -18,6 +18,8 @@ start() {
 }
 k() { tmux send-keys -t adrvtest "$@"; sleep 0.4; }
 bild() { tmux capture-pane -p -t adrvtest; }
+# Befehl eingeben: Pos1 springt in die Befehlszeile
+bef() { k Home; k "$1" Enter; }
 erwarte() {   # erwarte "Beschreibung" "Text auf dem Schirm"
     if bild | grep -qF -- "$2"; then
         OK=$((OK + 1)); echo "  ok      $1"
@@ -38,47 +40,59 @@ erwarte "Firmenliste" "4 Treffer"
 erwarte "Umlaute in der Liste" "Bäckerei Größenwahn e.K."
 k 3 Enter
 erwarte "Firma geöffnet" "Firma F000001"
+erwarte "Befehlszeile" "Befehl ===>"
 erwarte "Standardadresse" "Musterweg 12a, 70173 Stuttgart"
-erwarte "Ansprechpartner gezählt" "2 (F8)"
-k F8
-erwarte "Ansprechpartnerliste" "Musterfrau, Erika"
+erwarte "Ansprechpartner gezählt" "2 (AP)"
+bef ap
+erwarte "Ansprechpartnerliste per Befehl" "Musterfrau, Erika"
+k Z Enter
+erwarte "Z in der Liste" "Firma F000001"
+bef xy
+erwarte "Unbekannter Befehl" "Unbekannter Befehl XY"
 
-echo "Person anlegen, Dublette, Firma per F4"
+echo "Person anlegen, Dublette, Firma per ?"
 start
-k 2 Enter; k Enter; k F5
-erwarte "Neue Person" "Neue Person"
-k F Tab Tab Erika Tab Tab Tab Tab Musterfrau; k F2
+k 2 Enter; k Enter; k N Enter
+erwarte "Neue Person per N" "Neue Person"
+k F Tab Tab Erika Tab Tab Tab Tab Musterfrau; bef S
 erwarte "Dublettenwarnung" "Möglicherweise schon vorhanden: P000001"
-k F2
+bef S
 erwarte "Trotzdem gespeichert" "Gespeichert als P000007"
-k Tab Tab Beisp; k F4
-erwarte "Firmensuche aus F4" "Beispiel Bau GmbH"
-k 1 Enter; k F2; k F7
+k Down Down Down Down Down Down Down Down '?Beisp' Enter
+erwarte "Firmensuche aus ?name" "Beispiel Bau GmbH"
+k 1 Enter; bef S; bef AN
 erwarte "Anschrift über Firma" "Frau Erika Musterfrau"
 erwarte "Briefanrede" "Sehr geehrte Frau Musterfrau,"
-k Enter; k F12
+k Enter; bef AR
 erwarte "Archiviert" "[ARCHIVIERT]"
-k F11; k F11
+bef L; bef L
 erwarte "Gelöscht, zurück in der Liste" "5 Treffer"
 
-echo "Adresse mit Prüfung"
+echo "Adresse mit Prüfung, Werteliste, F-Tasten"
 start
-k 2 Enter; k Enter; k 1 Enter; k F9; k F5
+k 2 Enter; k Enter; k 1 Enter; k S-F9; k N Enter
+erwarte "Shift+F9 öffnet Adressen" "Adresse P0000"
 k Tab Tab Lindenstraße Tab 5 Tab Tab 1234 Tab Köln; k F2
-erwarte "PLZ geprüft" "PLZ in Deutschland: 5 Ziffern"
-k 50667; k F2
+erwarte "PLZ geprüft (F2)" "PLZ in Deutschland: 5 Ziffern"
+k 50667; bef S
 erwarte "Adresse gespeichert" "Lindenstraße 5, 50667 Köln"
+k 1 Enter; k '?' Enter
+erwarte "? öffnet Adresstypliste" "Adresstyp wählen"
+k Z Enter
+erwarte "Z bricht Liste ab" "Hausnummer ......:"
+k Enter
+erwarte "Leerer Typ wird gemeldet" "Adresstyp unbekannt"
 
 echo "Geburtstage, Export, Hilfe"
 start
 k 4 Enter
 erwarte "Geburtstagsliste" "Zeitraum (Tage)"
-k F3; k 5 Enter; k Enter
+k Escape; k 5 Enter; k Enter
 erwarte "CSV-Export" "Kontakt(e) exportiert"
 [ -s "$TMP/home/adressen.csv" ] && { OK=$((OK + 1)); echo "  ok      Exportdatei angelegt"; } \
     || { FEHLER=$((FEHLER + 1)); echo "  FEHLER  Exportdatei fehlt"; }
-k F3; k F1
-erwarte "Hilfe" "F4  Auswahlliste"
+bef Z; k '?' Enter
+erwarte "Hilfe" "AP  Ansprechpartner"
 
 echo
 echo "Bestanden: $OK"

@@ -43,18 +43,19 @@
            05  LINE 3 COLUMN 2 VALUE
                "Zl  Typ Std  Anschrift" HIGHLIGHT.
        01  S-AUSWAHL.
-           05  LINE 20 COLUMN 2 VALUE "Zeile bearbeiten:".
+           05  LINE 20 COLUMN 2 VALUE "Zeile/Befehl ...:".
            05  LINE 20 COLUMN 20 PIC XX USING W-EINGABE
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
            05  LINE 24 COLUMN 1 PIC X(79) FROM W-MELDUNG
                FOREGROUND-COLOR 3 HIGHLIGHT.
        01  S-ADRESSE.
            COPY bildkopf.
+           COPY befehl.
            05  LINE 3 COLUMN 2 VALUE "Adresstyp .......:".
            05  LINE 3 COLUMN 21 PIC X USING AD-TYP
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
            05  LINE 3 COLUMN 24 PIC X(30) FROM W-TYP-TEXT.
-           05  LINE 3 COLUMN 57 VALUE "F4 = Liste".
+           05  LINE 3 COLUMN 57 VALUE "? = Liste".
            05  LINE 4 COLUMN 2 VALUE "Standardadresse .:".
            05  LINE 4 COLUMN 21 PIC X USING AD-STANDARD
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
@@ -84,7 +85,7 @@
            05  LINE 13 COLUMN 21 PIC XX USING AD-LAND
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
            05  LINE 13 COLUMN 24 PIC X(30) FROM W-LAND-TEXT.
-           05  LINE 13 COLUMN 57 VALUE "F4 = Liste".
+           05  LINE 13 COLUMN 57 VALUE "? = Liste".
        PROCEDURE DIVISION USING BA-KT-NR BA-NAME.
            MOVE SPACES TO W-MELDUNG W-LISTEN-MELDUNG
            MOVE "N" TO W-FERTIG
@@ -115,14 +116,16 @@
            MOVE SPACES TO W-TITEL W-KOPF-RECHTS
            STRING "Adressen " BA-KT-NR " " FUNCTION TRIM(BA-NAME)
                   DELIMITED BY SIZE INTO W-TITEL
-           MOVE "Enter bearbeiten  F5 neue Adresse  F3 zurück"
-             TO W-TASTEN1
-           MOVE "F1 Hilfe" TO W-TASTEN2
+           MOVE "Zeilennummer = bearbeiten  N=Neue Adresse  Z=Zurück  "
+              & "?=Hilfe" TO W-TASTEN1
+           MOVE SPACES TO W-TASTEN2
+           MOVE "?   1001Z   1003N   1005" TO W-BEF-TAB
+           MOVE "J" TO W-BEF-LISTE
            PERFORM KOPF-BAUEN
            MOVE W-LISTEN-MELDUNG TO W-MELDUNG
            MOVE SPACES TO W-LISTEN-MELDUNG
            IF W-ANZ = 0
-               MOVE "Noch keine Adresse. F5 legt eine an." TO W-MELDUNG
+               MOVE "Noch keine Adresse. N legt eine an." TO W-MELDUNG
            END-IF
            DISPLAY S-RAHMEN
            PERFORM VARYING W-I FROM 1 BY 1 UNTIL W-I > W-ANZ
@@ -141,6 +144,8 @@
            MOVE SPACES TO W-EINGABE
            ACCEPT S-AUSWAHL
            MOVE SPACES TO W-MELDUNG
+           MOVE W-EINGABE TO W-BEFEHL
+           PERFORM BEFEHL-AUSWERTEN
            EVALUATE TRUE
                WHEN T-F3
                    MOVE "J" TO W-FERTIG
@@ -179,9 +184,10 @@
            MOVE SPACES TO W-BESTAETIGEN W-MELDUNG W-TITEL
            STRING "Adresse " BA-KT-NR " " FUNCTION TRIM(BA-NAME)
                   DELIMITED BY SIZE INTO W-TITEL
-           MOVE "F2 Speichern  F3 zurück  F4 Liste  F12 Löschen"
-             TO W-TASTEN1
-           MOVE "F1 Hilfe" TO W-TASTEN2
+           MOVE "S=Speichern  Z=Zurück  L=Löschen  ?=Hilfe" TO W-TASTEN1
+           MOVE "? im Feld = Liste" TO W-TASTEN2
+           MOVE "?   1001S   1002Z   1003L   1012" TO W-BEF-TAB
+           MOVE "N" TO W-BEF-LISTE
            PERFORM KOPF-BAUEN
            MOVE "N" TO W-MASKE-FERTIG
            PERFORM TEXTE-LADEN
@@ -194,7 +200,11 @@
                   AND NOT (T-F12 AND W-BESTAETIGEN = "LOESCHEN")
                    MOVE SPACES TO W-BESTAETIGEN
                END-IF
+               PERFORM BEFEHL-AUSWERTEN
+               PERFORM FRAGE-FELDER
                EVALUATE TRUE
+                   WHEN T-UNBEKANNT
+                       CONTINUE
                    WHEN T-F1
                        CALL "BHILFE"
                    WHEN T-F2
@@ -204,8 +214,8 @@
                           OR W-BESTAETIGEN = "VERWERF"
                            MOVE "J" TO W-MASKE-FERTIG
                        ELSE
-                           MOVE "Nicht gespeichert! F3 erneut = "
-                              & "verwerfen, F2 = speichern."
+                           MOVE "Nicht gespeichert! Z erneut = "
+                              & "verwerfen, S = speichern."
                              TO W-MELDUNG
                            MOVE "VERWERF" TO W-BESTAETIGEN
                        END-IF
@@ -237,7 +247,7 @@
            PERFORM TEXTE-LADEN
            EVALUATE TRUE
                WHEN W-TYP-TEXT = SPACES
-                   MOVE "Adresstyp unbekannt (F4 zeigt die Liste)."
+                   MOVE "Adresstyp unbekannt (? im Feld = Liste)."
                      TO W-MELDUNG
                    MOVE "J" TO W-FEHLER
                    MOVE 0321 TO W-CURSOR
@@ -297,7 +307,7 @@
                EXIT PARAGRAPH
            END-IF
            IF W-BESTAETIGEN NOT = "LOESCHEN"
-               MOVE "Diese Adresse löschen? F12 erneut = ja"
+               MOVE "Diese Adresse löschen? L erneut = ja"
                  TO W-MELDUNG
                MOVE "LOESCHEN" TO W-BESTAETIGEN
                EXIT PARAGRAPH
@@ -325,10 +335,27 @@
                        MOVE W-WAHL TO AD-LAND
                    END-IF
                WHEN OTHER
-                   MOVE "F4 gibt es bei Adresstyp und Land."
+                   MOVE "Liste gibt es bei Adresstyp und Land."
                      TO W-MELDUNG
            END-EVALUATE
            PERFORM KOPF-BAUEN
            PERFORM TEXTE-LADEN.
 
+      * ? als erstes Zeichen eines Codefelds öffnet die Liste wie F4.
+       FRAGE-FELDER.
+           IF NOT T-ENTER
+               EXIT PARAGRAPH
+           END-IF
+           EVALUATE TRUE
+               WHEN AD-TYP(1:1) = "?"
+                   MOVE SPACES TO AD-TYP
+                   MOVE 0321 TO W-CURSOR
+                   MOVE 1004 TO W-TASTE
+               WHEN AD-LAND(1:1) = "?"
+                   MOVE SPACES TO AD-LAND
+                   MOVE 1321 TO W-CURSOR
+                   MOVE 1004 TO W-TASTE
+           END-EVALUATE.
+
+       COPY befehl-p.
        COPY bildkopf-p.

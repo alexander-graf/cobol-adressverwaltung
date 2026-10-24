@@ -17,6 +17,7 @@
        SCREEN SECTION.
        01  S-EXPORT.
            COPY bildkopf.
+           COPY befehl.
            05  LINE 3 COLUMN 2 VALUE "Format ..........:".
            05  LINE 3 COLUMN 21 PIC X USING W-FORMAT
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
@@ -38,7 +39,9 @@
        PROCEDURE DIVISION.
            MOVE "Export" TO W-TITEL
            MOVE SPACES TO W-KOPF-RECHTS W-MELDUNG W-DATEI
-           MOVE "Enter exportieren  F3 zurück  F1 Hilfe" TO W-TASTEN1
+           MOVE "Enter=Exportieren  Z=Zurück  ?=Hilfe"
+             TO W-TASTEN1
+           MOVE "?   1001Z   1003" TO W-BEF-TAB
            MOVE SPACES TO W-TASTEN2
            PERFORM KOPF-BAUEN
            MOVE "N" TO W-FERTIG
@@ -46,9 +49,12 @@
                DISPLAY S-EXPORT
                ACCEPT S-EXPORT
                MOVE SPACES TO W-MELDUNG
+               PERFORM BEFEHL-AUSWERTEN
                MOVE FUNCTION UPPER-CASE(W-FORMAT) TO W-FORMAT
                MOVE FUNCTION UPPER-CASE(W-ARCHIV) TO W-ARCHIV
                EVALUATE TRUE
+                   WHEN T-UNBEKANNT
+                       CONTINUE
                    WHEN T-F3
                        MOVE "J" TO W-FERTIG
                    WHEN T-F1
@@ -84,4 +90,5 @@
                MOVE AU-MELDUNG TO W-MELDUNG
            END-IF.
 
+       COPY befehl-p.
        COPY bildkopf-p.

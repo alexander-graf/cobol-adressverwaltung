@@ -36,7 +36,7 @@
                "Zl  Nummer   Name" HIGHLIGHT.
            05  LINE 3 COLUMN 57 VALUE "PLZ    Ort" HIGHLIGHT.
        01  S-EINGABE.
-           05  LINE 20 COLUMN 2 VALUE "Auswahl (Zeile oder Nummer):".
+           05  LINE 20 COLUMN 2 VALUE "Zeile, Nummer oder Befehl:".
            05  LINE 20 COLUMN 31 PIC X(7) USING W-EINGABE
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
            05  LINE 20 COLUMN 42 PIC X(38) FROM W-INFO.
@@ -47,14 +47,16 @@
            MOVE BW-MELDUNG TO W-MELDUNG
            MOVE SPACES TO BW-MELDUNG
            MOVE BW-TITEL TO W-TITEL
-           MOVE "Enter wählen  F3 zurück  Bild auf/ab blättern"
-             TO W-TASTEN1
+           MOVE "Zeile/Nummer = öffnen  +/- oder Bild auf/ab = "
+              & "blättern  Z=Zurück  ?=Hilfe" TO W-TASTEN1
            IF BW-MODUS = "S"
-               MOVE "F5 neu  F11 Etiketten aller Treffer  F1 Hilfe"
-                 TO W-TASTEN2
+               MOVE "N=Neu  E=Etiketten aller Treffer" TO W-TASTEN2
            ELSE
-               MOVE "F1 Hilfe" TO W-TASTEN2
+               MOVE SPACES TO W-TASTEN2
            END-IF
+           MOVE "?   1001Z   1003N   1005E   1011+   2002-   2001"
+             TO W-BEF-TAB
+           MOVE "J" TO W-BEF-LISTE
            PERFORM KOPF-BAUEN
            CALL "SUCHE" USING SU-PARM
            IF SU-ANZAHL = 0
@@ -75,6 +77,8 @@
                MOVE SPACES TO W-EINGABE
                ACCEPT S-EINGABE
                MOVE SPACES TO W-MELDUNG
+               MOVE W-EINGABE TO W-BEFEHL
+               PERFORM BEFEHL-AUSWERTEN
                EVALUATE TRUE
                    WHEN T-F3
                        MOVE "ZURUECK" TO BW-RUECK
@@ -160,4 +164,5 @@
                  TO W-MELDUNG
            END-IF.
 
+       COPY befehl-p.
        COPY bildkopf-p.

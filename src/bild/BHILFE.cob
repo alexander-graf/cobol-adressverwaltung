@@ -1,6 +1,6 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. BHILFE.
-      * Hilfeseite mit allen Tasten.
+      * Hilfeseite mit allen Befehlen und Tasten.
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
        SPECIAL-NAMES.
@@ -13,25 +13,42 @@
        SCREEN SECTION.
        01  S-HILFE.
            COPY bildkopf.
-           05  LINE 3 COLUMN 3 VALUE "Tasten" HIGHLIGHT.
+           05  LINE 3 COLUMN 3 VALUE
+               "Befehle" HIGHLIGHT.
+           05  LINE 3 COLUMN 22 VALUE
+               "in Befehl ===> oder ins Auswahlfeld tippen, Enter".
            05  LINE 4 COLUMN 3 VALUE
-               "Tab / Pfeile  Feld wechseln     Enter  bestätigen".
+               "?   Hilfe                 F1".
+           05  LINE 4 COLUMN 42 VALUE
+               "S   Speichern             F2".
            05  LINE 5 COLUMN 3 VALUE
-               "F2  Speichern                   F3/Esc zurück".
+               "Z   zurück, auch Esc      F3".
+           05  LINE 5 COLUMN 42 VALUE
+               "?   im Codefeld: Liste    F4".
            05  LINE 6 COLUMN 3 VALUE
-               "F4  Auswahlliste zum Feld unter dem Cursor".
+               "N   neu                   F5".
+           05  LINE 6 COLUMN 42 VALUE
+               "SU  zurück zur Suche      F6".
            05  LINE 7 COLUMN 3 VALUE
-               "F5  Neu (in Listen)             F6  zurück zur Suche".
+               "AN  Anschrift, Anrede     F7".
+           05  LINE 7 COLUMN 42 VALUE
+               "AP  Ansprechpartner       F8".
            05  LINE 8 COLUMN 3 VALUE
-               "F7  Anschrift und Briefanrede   F8  Ansprechpartner".
+               "A   Adressen              F9".
+           05  LINE 8 COLUMN 42 VALUE
+               "K   Kommunikation         F10".
            05  LINE 9 COLUMN 3 VALUE
-               "F9  Adressen                    F10 Kommunikation".
+               "L   löschen           F11/F12".
+           05  LINE 9 COLUMN 42 VALUE
+               "AR  archivieren/aktivieren F12".
            05  LINE 10 COLUMN 3 VALUE
-               "F11 endgültig löschen (nur archivierte Kontakte)".
+               "E   Etiketten der Treffer F11".
+           05  LINE 10 COLUMN 42 VALUE
+               "+ / -  blättern    Bild ab/auf".
            05  LINE 11 COLUMN 3 VALUE
-               "F12 archivieren / wieder aktivieren".
+               "Die F-Tasten gehen auch mit Shift (Shift+F2 = F2).".
            05  LINE 12 COLUMN 3 VALUE
-               "Bild auf/ab oder F7/F8 blättern in Listen".
+               "Endgültig löschen nur bei archivierten Kontakten.".
            05  LINE 14 COLUMN 3 VALUE "Suche" HIGHLIGHT.
            05  LINE 15 COLUMN 3 VALUE
                "mueller findet Müller (Anfang des Namens),".
@@ -44,7 +61,7 @@
        PROCEDURE DIVISION.
            MOVE "Hilfe" TO W-TITEL
            MOVE SPACES TO W-KOPF-RECHTS W-TASTEN2 W-MELDUNG
-           MOVE "Enter / F3  zurück" TO W-TASTEN1
+           MOVE "Enter = zurück" TO W-TASTEN1
            PERFORM KOPF-BAUEN
            DISPLAY S-HILFE
            ACCEPT W-DUMMY LINE 24 COLUMN 78

@@ -15,6 +15,7 @@
        SCREEN SECTION.
        01  S-IMPORT.
            COPY bildkopf.
+           COPY befehl.
            05  LINE 3 COLUMN 2 VALUE "CSV-Datei .......:".
            05  LINE 3 COLUMN 21 PIC X(58) USING W-DATEI
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
@@ -30,14 +31,19 @@
        PROCEDURE DIVISION.
            MOVE "Import" TO W-TITEL
            MOVE SPACES TO W-KOPF-RECHTS W-MELDUNG W-DATEI W-TASTEN2
-           MOVE "Enter importieren  F3 zurück  F1 Hilfe" TO W-TASTEN1
+           MOVE "Enter=Importieren  Z=Zurück  ?=Hilfe"
+             TO W-TASTEN1
+           MOVE "?   1001Z   1003" TO W-BEF-TAB
            PERFORM KOPF-BAUEN
            MOVE "N" TO W-FERTIG
            PERFORM UNTIL W-FERTIG = "J"
                DISPLAY S-IMPORT
                ACCEPT S-IMPORT
                MOVE SPACES TO W-MELDUNG
+               PERFORM BEFEHL-AUSWERTEN
                EVALUATE TRUE
+                   WHEN T-UNBEKANNT
+                       CONTINUE
                    WHEN T-F3
                        MOVE "J" TO W-FERTIG
                    WHEN T-F1
@@ -55,4 +61,5 @@
            END-PERFORM
            GOBACK.
 
+       COPY befehl-p.
        COPY bildkopf-p.

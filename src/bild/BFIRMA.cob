@@ -43,6 +43,7 @@
        SCREEN SECTION.
        01  S-FIRMA.
            COPY bildkopf.
+           COPY befehl.
            05  LINE 3 COLUMN 2 VALUE "Firmenname ......:".
            05  LINE 3 COLUMN 21 PIC X(60) USING KF-NAME
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
@@ -52,7 +53,7 @@
            05  LINE 5 COLUMN 2 VALUE "Rechtsform ......:".
            05  LINE 5 COLUMN 21 PIC X(20) USING KF-RECHTSFORM
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
-           05  LINE 5 COLUMN 43 VALUE "F4 = Liste".
+           05  LINE 5 COLUMN 43 VALUE "? = Liste".
            05  LINE 6 COLUMN 2 VALUE "Branche .........:".
            05  LINE 6 COLUMN 21 PIC X(30) USING KF-BRANCHE
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
@@ -78,7 +79,7 @@
            05  LINE 11 COLUMN 21 PIC XX USING KT-KATEGORIE
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
            05  LINE 11 COLUMN 25 PIC X(30) FROM W-KAT-TEXT.
-           05  LINE 11 COLUMN 57 VALUE "F4 = Liste".
+           05  LINE 11 COLUMN 57 VALUE "? = Liste".
            05  LINE 12 COLUMN 2 VALUE "Schlagwörter ....:".
            05  LINE 12 COLUMN 21 PIC X(11) USING KT-SCHLAGWORT(1)
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
@@ -107,10 +108,12 @@
            05  LINE 20 COLUMN 21 PIC X(60) FROM W-AP-TEXT.
        PROCEDURE DIVISION USING BF-NR BF-RUECK.
            MOVE SPACES TO BF-RUECK W-MELDUNG W-BESTAETIGEN
-           MOVE "F2 Speichern  F3 zurück  F4 Liste  F6 Suche  "
-              & "F7 Anschrift  F8 Ansprechpartner" TO W-TASTEN1
-           MOVE "F9 Adressen  F10 Kommunikation  F11 Löschen  "
-              & "F12 Archiv  F1 Hilfe" TO W-TASTEN2
+           MOVE "S=Speichern  Z=Zurück  SU=Suche  AN=Anschrift  "
+              & "AP=Ansprechpartner  ?=Hilfe" TO W-TASTEN1
+           MOVE "A=Adressen  K=Kommunikation  AR=Archiv  L=Löschen  "
+              & "? im Feld = Liste" TO W-TASTEN2
+           MOVE "?   1001S   1002Z   1003SU  1006AN  1007AP  1008"
+              & "A   1009K   1010L   1011AR  1012" TO W-BEF-TAB
            IF BF-NR = SPACES
                INITIALIZE KT-SATZ
                MOVE "F" TO KT-ART
@@ -133,6 +136,8 @@
                DISPLAY S-FIRMA
                ACCEPT S-FIRMA
                MOVE SPACES TO W-MELDUNG
+               PERFORM BEFEHL-AUSWERTEN
+               PERFORM FRAGE-FELDER
                PERFORM TASTE-AUSWERTEN
            END-PERFORM
            GOBACK.
@@ -146,6 +151,8 @@
                MOVE SPACES TO W-BESTAETIGEN
            END-IF
            EVALUATE TRUE
+               WHEN T-UNBEKANNT
+                   CONTINUE
                WHEN T-F1
                    CALL "BHILFE"
                WHEN T-F2
@@ -162,11 +169,12 @@
                WHEN T-ENTER
                    PERFORM PRUEFEN
                    IF W-FEHLER = "N"
-                       MOVE "Eingaben in Ordnung. F2 speichert."
+                       MOVE "Eingaben in Ordnung. S speichert."
                          TO W-MELDUNG
+                       MOVE 0214 TO W-CURSOR
                    END-IF
                WHEN KT-NR = SPACES
-                   MOVE "Bitte erst speichern (F2)." TO W-MELDUNG
+                   MOVE "Bitte erst speichern (S)." TO W-MELDUNG
                WHEN T-F7
                    CALL "BANSCHR" USING KT-NR
                WHEN T-F8
@@ -201,7 +209,7 @@
            CALL "CODES" USING CD-PARM
            IF NOT CD-GUELTIG
                MOVE "J" TO W-FEHLER
-               MOVE "Kategorie unbekannt (F4 zeigt die Liste)."
+               MOVE "Kategorie unbekannt (? im Feld = Liste)."
                  TO W-MELDUNG
                MOVE 1121 TO W-CURSOR
                EXIT PARAGRAPH
@@ -228,7 +236,7 @@
                    PERFORM DIENST
                    IF DI-TREFFER-NR NOT = SPACES
                        STRING FUNCTION TRIM(DI-MELDUNG)
-                              " - F2 erneut speichert trotzdem."
+                              " - S erneut speichert trotzdem."
                               DELIMITED BY SIZE INTO W-MELDUNG
                        MOVE "DUBL" TO W-BESTAETIGEN
                        EXIT PARAGRAPH
@@ -252,8 +260,8 @@
            IF KT-SATZ = W-ORIG OR W-BESTAETIGEN = "VERWERF"
                MOVE "J" TO W-FERTIG
            ELSE
-               MOVE "Nicht gespeichert! Taste erneut = verwerfen, "
-                  & "F2 = speichern." TO W-MELDUNG
+               MOVE "Nicht gespeichert! Nochmal = verwerfen, "
+                  & "S = speichern." TO W-MELDUNG
                MOVE "VERWERF" TO W-BESTAETIGEN
            END-IF.
 
@@ -275,11 +283,27 @@
                        PERFORM INFO-LADEN
                    END-IF
                WHEN OTHER
-                   MOVE "F4 gibt es bei Rechtsform und Kategorie."
+                   MOVE "Liste gibt es bei Rechtsform und Kategorie."
                      TO W-MELDUNG
            END-EVALUATE.
 
-      * Liste der Ansprechpartner; F5 legt eine neue Person an, die
+      * ? als erstes Zeichen eines Codefelds öffnet die Liste wie F4.
+       FRAGE-FELDER.
+           IF NOT T-ENTER
+               EXIT PARAGRAPH
+           END-IF
+           EVALUATE TRUE
+               WHEN KF-RECHTSFORM(1:1) = "?"
+                   MOVE SPACES TO KF-RECHTSFORM
+                   MOVE 0521 TO W-CURSOR
+                   MOVE 1004 TO W-TASTE
+               WHEN KT-KATEGORIE(1:1) = "?"
+                   MOVE SPACES TO KT-KATEGORIE
+                   MOVE 1121 TO W-CURSOR
+                   MOVE 1004 TO W-TASTE
+           END-EVALUATE.
+
+      * Liste der Ansprechpartner; N legt eine neue Person an, die
       * gleich dieser Firma zugeordnet ist.
        ANSPRECHPARTNER.
            INITIALIZE SU-PARM
@@ -321,12 +345,12 @@
        TILGEN.
            IF NOT KT-ARCHIVIERT
                MOVE "Endgültig löschen geht nur bei archivierten "
-                  & "Kontakten (erst F12)." TO W-MELDUNG
+                  & "Kontakten (erst AR)." TO W-MELDUNG
                EXIT PARAGRAPH
            END-IF
            IF W-BESTAETIGEN NOT = "TILGEN"
                MOVE "Firma samt Adressen und Kommunikation "
-                  & "endgültig löschen? F11 erneut = ja" TO W-MELDUNG
+                  & "endgültig löschen? L erneut = ja" TO W-MELDUNG
                MOVE "TILGEN" TO W-BESTAETIGEN
                EXIT PARAGRAPH
            END-IF
@@ -350,7 +374,7 @@
            IF DI-ERFOLG
                MOVE KT-SATZ TO W-ORIG
                IF KT-ARCHIVIERT
-                   MOVE "Archiviert. F11 würde jetzt endgültig löschen."
+                   MOVE "Archiviert. L würde jetzt endgültig löschen."
                      TO W-MELDUNG
                ELSE
                    MOVE "Wieder aktiv." TO W-MELDUNG
@@ -376,8 +400,8 @@
            IF KT-NR = SPACES
                MOVE "Neue Firma" TO W-TITEL
                MOVE SPACES TO W-KOPF-RECHTS
-               MOVE "(nach dem Speichern: F9)" TO W-STDADR-TEXT
-               MOVE "(nach dem Speichern: F10)" TO W-KOMM-TEXT
+               MOVE "(nach dem Speichern: A)" TO W-STDADR-TEXT
+               MOVE "(nach dem Speichern: K)" TO W-KOMM-TEXT
                EXIT PARAGRAPH
            END-IF
            MOVE SPACES TO W-TITEL
@@ -401,16 +425,17 @@
                PERFORM WORT-ANHAENGEN
                MOVE W-SATZ TO W-STDADR-TEXT
            ELSE
-               MOVE "(keine - F9)" TO W-STDADR-TEXT
+               MOVE "(keine - A)" TO W-STDADR-TEXT
            END-IF
            PERFORM KOMM-TEXT-BILDEN
            INITIALIZE SU-PARM
            MOVE KT-NR TO SU-FIRMA-NR
            CALL "SUCHE" USING SU-PARM
            MOVE SU-ANZAHL TO W-ANZ-A
-           STRING FUNCTION TRIM(W-ANZ-A) " (F8)" DELIMITED BY SIZE
+           STRING FUNCTION TRIM(W-ANZ-A) " (AP)" DELIMITED BY SIZE
              INTO W-AP-TEXT.
 
        COPY kopfzeit-p.
+       COPY befehl-p.
        COPY bildkopf-p.
        COPY wort-p.

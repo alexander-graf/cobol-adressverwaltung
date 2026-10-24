@@ -37,7 +37,9 @@
            MOVE LW-LISTE TO CD-LISTE
            CALL "CODES" USING CD-PARM
            MOVE LW-TITEL TO W-TITEL
-           MOVE "Nummer eingeben, Enter   F3 abbrechen" TO W-TASTEN1
+           MOVE "Nummer eingeben, Enter   Z=Abbrechen" TO W-TASTEN1
+           MOVE "Z   1003" TO W-BEF-TAB
+           MOVE "J" TO W-BEF-LISTE
            PERFORM KOPF-BAUEN
            MOVE "N" TO W-FERTIG
            PERFORM UNTIL W-FERTIG = "J"
@@ -54,6 +56,8 @@
                MOVE SPACES TO W-EINGABE
                ACCEPT S-EINGABE
                MOVE SPACES TO W-MELDUNG
+               MOVE W-EINGABE TO W-BEFEHL
+               PERFORM BEFEHL-AUSWERTEN
                EVALUATE TRUE
                    WHEN T-F3
                        MOVE "J" TO W-FERTIG
@@ -77,4 +81,5 @@
                  TO W-MELDUNG
            END-IF.
 
+       COPY befehl-p.
        COPY bildkopf-p.

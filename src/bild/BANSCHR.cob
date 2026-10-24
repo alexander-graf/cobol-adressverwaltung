@@ -56,7 +56,7 @@
            END-IF
            MOVE SPACES TO W-TITEL W-KOPF-RECHTS W-TASTEN2
            STRING "Anschrift " KT-NR DELIMITED BY SIZE INTO W-TITEL
-           MOVE "Enter / F3  zurück" TO W-TASTEN1
+           MOVE "Enter = zurück" TO W-TASTEN1
            PERFORM KOPF-BAUEN
            DISPLAY S-ANSCHRIFT
            ACCEPT W-DUMMY LINE 24 COLUMN 78

@@ -28,6 +28,7 @@
        SCREEN SECTION.
        01  S-SUCHE.
            COPY bildkopf.
+           COPY befehl.
            05  LINE 3 COLUMN 2 VALUE "Suchbegriff .....:".
            05  LINE 3 COLUMN 21 PIC X(30) USING SU-BEGRIFF
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
@@ -47,7 +48,7 @@
            05  LINE 9 COLUMN 2 VALUE "Kategorie .......:".
            05  LINE 9 COLUMN 21 PIC XX USING SU-KATEGORIE
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
-           05  LINE 9 COLUMN 24 VALUE "F4 = Liste".
+           05  LINE 9 COLUMN 24 VALUE "? = Liste".
            05  LINE 10 COLUMN 2 VALUE "Schlagwort ......:".
            05  LINE 10 COLUMN 21 PIC X(11) USING SU-SCHLAGWORT
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
@@ -71,9 +72,11 @@
            END-IF
            MOVE "N" TO W-FERTIG
            PERFORM UNTIL W-FERTIG = "J"
-               MOVE "Enter suchen  F3 zurück  F4 Liste  F5 neu"
+               MOVE "Enter=Suchen  N=Neu  Z=Zurück  ?=Hilfe"
                  TO W-TASTEN1
-               MOVE "Leere Suche zeigt alle.  F1 Hilfe" TO W-TASTEN2
+               MOVE "Leere Suche zeigt alle.  ? im Feld = Liste"
+                 TO W-TASTEN2
+               MOVE "?   1001Z   1003N   1005" TO W-BEF-TAB
                PERFORM KOPF-BAUEN
                DISPLAY S-SUCHE
                ACCEPT S-SUCHE
@@ -81,7 +84,15 @@
                MOVE FUNCTION UPPER-CASE(SU-ART) TO SU-ART
                MOVE FUNCTION UPPER-CASE(SU-ARCHIV) TO SU-ARCHIV
                MOVE FUNCTION UPPER-CASE(SU-KATEGORIE) TO SU-KATEGORIE
+               PERFORM BEFEHL-AUSWERTEN
+               IF T-ENTER AND SU-KATEGORIE(1:1) = "?"
+                   MOVE SPACES TO SU-KATEGORIE
+                   MOVE 0921 TO W-CURSOR
+                   MOVE 1004 TO W-TASTE
+               END-IF
                EVALUATE TRUE
+                   WHEN T-UNBEKANNT
+                       CONTINUE
                    WHEN T-F3
                        MOVE "J" TO W-FERTIG
                    WHEN T-F1
@@ -96,7 +107,7 @@
                                MOVE W-WAHL TO SU-KATEGORIE
                            END-IF
                        ELSE
-                           MOVE "F4 gibt es hier nur bei Kategorie."
+                           MOVE "Liste gibt es hier nur bei Kategorie."
                              TO W-MELDUNG
                        END-IF
                    WHEN T-F5
@@ -165,4 +176,5 @@
                MOVE AU-MELDUNG TO BW-MELDUNG
            END-IF.
 
+       COPY befehl-p.
        COPY bildkopf-p.

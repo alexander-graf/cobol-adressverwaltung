@@ -5,30 +5,29 @@ COBOL (GnuCOBOL), mit Bildschirmmasken wie am Großrechner und Daten in
 indizierten Dateien.
 
 ```
- Adressen · Person P000001                 angelegt 24.10.26  geändert 24.10.26
-
- Anrede ..........: F  Frau                           F4 = Liste
- Titel ...........: Dr.
- Vorname .........: Erika
+ Adressen · Person P000005                 angelegt 25.10.26  geändert 25.10.26
+ Befehl ===>
+ Anrede ..........: F  Frau                           ? = Liste
+ Titel ...........: Mag.
+ Vorname .........: Sophie
  Weitere Vornamen :
  Namensvorsatz ...:                        Namenszusatz:
- Nachname ........: Musterfrau
- Geburtsdatum ....: 05.11.1980 TT.MM.JJJJ
- Firma ...........: F000001  Beispiel Bau
- Position ........: Geschäftsführerin
+ Nachname ........: Gruber
+ Geburtsdatum ....:            TT.MM.JJJJ
+ Firma ...........: F000004  Alpenblick Consulting
+ Position ........: Partnerin
  Abteilung .......:
- Kategorie .......: KU Kunde                          F4 = Liste
+ Kategorie .......: PA Partner                        ? = Liste
  Schlagwörter ....:
  Notiz ...........:
 
 
 
- Briefanrede .....: Sehr geehrte Frau Dr. Musterfrau,
+ Briefanrede .....: Sehr geehrte Frau Mag. Gruber,
  Standardadresse .: (keine eigene - Post geht an die Firma)
- Kommunikation ...: e.musterfrau@beispiel-bau.example  |  +49 152 28817386
-F2 Speichern  F3 zurück  F4 Liste/Firma wählen  F6 Suche  F7 Anschrift
-F9 Adressen  F10 Kommunikation  F11 Löschen  F12 Archiv  F1 Hilfe
-
+ Kommunikation ...: (keine - K)
+S=Speichern  Z=Zurück  SU=Suche  AN=Anschrift  ?=Hilfe
+A=Adressen  K=Kommunikation  AR=Archiv  L=Löschen  ? im Feld = Liste
 ```
 
 ## Was sie kann
@@ -97,20 +96,29 @@ adrv --import ~/adressen.csv
 
 ## Bedienung
 
-| Taste | Wirkung |
-|---|---|
-| Tab, Pfeile | Feld wechseln |
-| F2 | speichern |
-| F3, Esc | zurück (fragt bei ungespeicherten Änderungen nach) |
-| F4 | Auswahlliste zum Feld unter dem Cursor; im Firmenfeld einer Person die Firmensuche |
-| F5 | neu (in Listen) |
-| F6 | zurück zur Suche |
-| F7 | Anschrift und Briefanrede, zusätzlich in `~/adrv-anschrift.txt` |
-| F8 | Ansprechpartner einer Firma |
-| F9 / F10 | Adressen / Kommunikationswege |
-| F11 | in Listen: Etiketten nach `~/adrv-etiketten.txt`; in Masken: endgültig löschen |
-| F12 | archivieren und wieder aktivieren |
-| Bild auf/ab | blättern |
+Bedient wird wie am Großrechner (ISPF/3270) über die Befehlszeile
+`Befehl ===>` oben in jeder Maske: Kürzel eintippen, Enter. **Pos1**
+springt in die Befehlszeile. In Listen gehört der Befehl ins Auswahlfeld.
+Jeder Befehl hat zusätzlich eine F-Taste, auch mit Shift (Shift+F2 = F2);
+das hilft, wenn der Fenstermanager die nackten F-Tasten selbst belegt.
+
+| Befehl | Taste | Wirkung |
+|---|---|---|
+| `?` | F1 | Hilfe |
+| `S` | F2 | speichern |
+| `Z` | F3, Esc | zurück (fragt bei ungespeicherten Änderungen nach) |
+| `?` im Codefeld | F4 | Auswahlliste zu Anrede, Rechtsform, Kategorie, Land, Typ; `?beisp` im Firmenfeld einer Person sucht die Firma |
+| `N` | F5 | neu (in Listen und in der Suche) |
+| `SU` | F6 | zurück zur Suche |
+| `AN` | F7 | Anschrift und Briefanrede, zusätzlich in `~/adrv-anschrift.txt` |
+| `AP` | F8 | Ansprechpartner einer Firma |
+| `A` / `K` | F9 / F10 | Adressen / Kommunikationswege |
+| `L` | F11 (Adresse, Kommunikation: F12) | löschen; Kontakte nur, wenn archiviert |
+| `AR` | F12 | archivieren und wieder aktivieren |
+| `E` | F11 | in Trefferlisten: Etiketten nach `~/adrv-etiketten.txt` |
+| `+` / `-` | Bild ab/auf | blättern |
+
+Tab und Pfeile wechseln das Feld, Enter prüft die Eingaben.
 
 ## Warum Latin-9 und luit
 
@@ -145,7 +153,9 @@ A terminal address book for companies and people, written in COBOL
 (GnuCOBOL 3.x) with SCREEN SECTION forms and indexed files. It supports
 multiple addresses and contact channels per entry, German postal address
 formatting (DIN 5008), search, duplicate warnings, archiving and GDPR
-deletion, CSV/vCard/JSON export and CSV import. The UI is German. Because
+deletion, CSV/vCard/JSON export and CSV import. The UI is German and is
+driven ISPF-style through a `Befehl ===>` command line (function keys and
+Shift+function keys work too). Because
 GnuCOBOL's screen I/O assumes one byte per character, the program runs in
 ISO-8859-15 behind `luit`; all exported files are UTF-8.
 

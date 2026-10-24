@@ -37,7 +37,7 @@
        01  S-AUSWAHL.
            05  LINE 3 COLUMN 19 PIC 999 USING W-TAGE
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
-           05  LINE 21 COLUMN 2 VALUE "Zeile öffnen:".
+           05  LINE 21 COLUMN 2 VALUE "Zeile/Befehl:".
            05  LINE 21 COLUMN 16 PIC XX USING W-EINGABE
                HIGHLIGHT UNDERLINE PROMPT CHARACTER IS " ".
            05  LINE 24 COLUMN 1 PIC X(79) FROM W-MELDUNG
@@ -47,7 +47,9 @@
            MOVE SPACES TO W-KOPF-RECHTS W-MELDUNG
            MOVE "Enter: Zeile öffnen oder Zeitraum übernehmen"
              TO W-TASTEN1
-           MOVE "F3 zurück  F1 Hilfe" TO W-TASTEN2
+           MOVE "Z=Zurück  ?=Hilfe" TO W-TASTEN2
+           MOVE "?   1001Z   1003" TO W-BEF-TAB
+           MOVE "J" TO W-BEF-LISTE
            PERFORM KOPF-BAUEN
            MOVE "N" TO W-FERTIG
            PERFORM UNTIL W-FERTIG = "J"
@@ -58,6 +60,8 @@
                MOVE SPACES TO W-EINGABE
                ACCEPT S-AUSWAHL
                MOVE SPACES TO W-MELDUNG
+               MOVE W-EINGABE TO W-BEFEHL
+               PERFORM BEFEHL-AUSWERTEN
                EVALUATE TRUE
                    WHEN T-F3
                        MOVE "J" TO W-FERTIG
@@ -111,4 +115,5 @@
                MOVE "Bitte eine Zeile der Liste." TO W-MELDUNG
            END-IF.
 
+       COPY befehl-p.
        COPY bildkopf-p.

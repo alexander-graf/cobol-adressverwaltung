@@ -33,7 +33,7 @@
                END-IF
            END-IF
            IF W-KOMM-TEXT = SPACES
-               MOVE "(keine - F10)" TO W-KOMM-TEXT
+               MOVE "(keine - K)" TO W-KOMM-TEXT
            END-IF.
 
        KURZNAME-BILDEN.

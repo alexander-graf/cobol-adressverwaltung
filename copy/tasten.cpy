@@ -1,5 +1,7 @@
       * Gemeinsame Felder aller Masken. Jedes Maskenprogramm setzt
       * in SPECIAL-NAMES: CRT STATUS IS W-TASTE, CURSOR IS W-CURSOR.
+      * Die Namen T-F1 ... T-F12 stehen für die Funktion; ausgelöst
+      * wird sie per Befehl, F-Taste oder Shift+F-Taste (befehl-p).
        01  W-TASTE                 PIC 9(4).
            88  T-ENTER             VALUE 0.
            88  T-F1                VALUE 1001.
@@ -16,6 +18,7 @@
            88  T-F12               VALUE 1012.
            88  T-SEITE-ZURUECK     VALUE 2001.
            88  T-SEITE-VOR         VALUE 2002.
+           88  T-UNBEKANNT         VALUE 9999.
        01  W-CURSOR                PIC 9(4).
        01  W-CUR REDEFINES W-CURSOR.
            05  W-CUR-ZEILE         PIC 99.
@@ -28,3 +31,15 @@
        01  W-MELDUNG               PIC X(79).
        01  W-KOPF-LEN              PIC 99.
        01  W-BESTAETIGEN           PIC X(8).
+      * Befehlszeile: je Eintrag Befehl (4) und Tastencode (4); die
+      * Maske füllt W-BEF-TAB, ein leerer Eintrag beendet die Tabelle.
+       01  W-BEFEHL                PIC X(4).
+       01  W-BEF-TAB               PIC X(136).
+       01  W-BEF-T REDEFINES W-BEF-TAB.
+           05  W-BEF-E             OCCURS 17.
+               10  W-BEF-WORT      PIC X(4).
+               10  W-BEF-CODE      PIC 9(4).
+       01  W-BEF-I                 PIC 99.
+      * "J" = Befehl steht im Auswahlfeld einer Liste; Unbekanntes
+      * ist dann kein Fehler, sondern eine Zeile oder Nummer.
+       01  W-BEF-LISTE             PIC X VALUE "N".

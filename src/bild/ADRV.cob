@@ -51,7 +51,9 @@
       *    0 ist LC_CTYPE (glibc), "" heißt: aus der Umgebung.
            CALL "setlocale" USING BY VALUE 0 BY CONTENT X"00"
            MOVE "Hauptmenü" TO W-TITEL
-           MOVE "F1 Hilfe   F3 Ende" TO W-TASTEN1
+           MOVE "?=Hilfe   0 oder Z=Ende" TO W-TASTEN1
+           MOVE "?   1001Z   1003" TO W-BEF-TAB
+           MOVE "J" TO W-BEF-LISTE
            MOVE SPACES TO W-TASTEN2 W-MELDUNG W-KOPF-RECHTS
            PERFORM UNTIL W-ENDE = "J"
                PERFORM KOPF-BAUEN
@@ -59,6 +61,8 @@
                DISPLAY S-MENUE
                ACCEPT S-MENUE
                MOVE SPACES TO W-MELDUNG
+               MOVE W-WAHL TO W-BEFEHL
+               PERFORM BEFEHL-AUSWERTEN
                EVALUATE TRUE
                    WHEN T-F3
                        MOVE "J" TO W-ENDE
@@ -100,7 +104,7 @@
                WHEN "0"
                    MOVE "J" TO W-ENDE
                WHEN OTHER
-                   MOVE "Bitte 0 bis 7 wählen." TO W-MELDUNG
+                   MOVE "Bitte 0 bis 7 wählen (? = Hilfe)." TO W-MELDUNG
            END-EVALUATE.
 
       * Import und Export ohne Bildschirm. Die Meldung wird nach UTF-8
@@ -139,4 +143,5 @@
                MOVE 1 TO RETURN-CODE
            END-IF.
 
+       COPY befehl-p.
        COPY bildkopf-p.
