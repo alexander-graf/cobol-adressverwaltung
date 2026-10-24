@@ -1,0 +1,23 @@
+#!/bin/sh
+# Startet die Adressverwaltung.
+# Das Programm arbeitet intern mit ISO-8859-15 (ein Byte je Zeichen);
+# luit übersetzt zwischen diesem Zeichensatz und dem UTF-8-Terminal.
+
+: "${ADRV_DATEN:=$HOME/.local/share/adressverwaltung}"
+export ADRV_DATEN
+mkdir -p "$ADRV_DATEN" || exit 1
+
+if ! command -v luit >/dev/null 2>&1; then
+    echo "adrv: luit fehlt (Gentoo: x11-apps/luit, Debian: x11-utils)" >&2
+    exit 1
+fi
+if ! locale -a 2>/dev/null | grep -qi '^de_DE.*euro$\|^de_DE.iso885915'; then
+    echo "adrv: Locale de_DE@euro (ISO-8859-15) fehlt, siehe README" >&2
+    exit 1
+fi
+
+# Bild auf/ab und Esc liefern sonst keinen Tastencode.
+export COB_SCREEN_EXCEPTIONS=Y COB_SCREEN_ESC=Y ESCDELAY=25
+export LC_ALL=de_DE@euro
+
+exec luit -encoding ISO-8859-15 -- "@BIN@" "$@"
